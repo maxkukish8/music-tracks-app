@@ -11,86 +11,91 @@ import config from './config';
 
 async function start() {
   try {
-    // Log configuration on startup
+    // --- ЛОГ КОНФІГУРАЦІЇ ---
     console.log(`Starting server in ${config.server.env} mode`);
-    
-    // Initialize database
+
+    // --- ІНІТ СХОВИЩА ---
     await initializeDb();
-    
+
+    // --- FASTIFY ---
     const fastify = Fastify({
       logger: {
         level: config.logger.level,
-        transport: config.isDevelopment ? {
-          target: 'pino-pretty',
-          options: {
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
-          },
-        } : undefined,
-      }
+        transport: config.isDevelopment
+            ? {
+              target: 'pino-pretty',
+              options: { translateTime: 'HH:MM:ss Z', ignore: 'pid,hostname' },
+            }
+            : undefined,
+      },
     });
-    
-    // Register plugins
+
+    // --- CORS (простий, щоб не ловити проблеми) ---
     await fastify.register(cors, {
-      origin: config.cors.origin,
+      origin: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
-    
+
+    // --- multipart (обмеження з конфіга) ---
     await fastify.register(multipart, {
-      limits: {
-        fileSize: config.upload.maxFileSize,
-      }
+      limits: { fileSize: config.upload.maxFileSize },
     });
-    
-    // Serve static files (uploads)
+
+    // --- СТАТИКА ДЛЯ АПЛОАДІВ (/api/files/...) ---
     await fastify.register(fastifyStatic, {
-      root: config.storage.uploadsDir,
+      root: config.storage.uploadsDir, // налаштовано через utils/db.ts + config
       prefix: '/api/files/',
       decorateReply: false,
     });
 
-    await fastify.register(fastifyStatic, {
-      root: path.join(__dirname, '..', '../frontend', 'dist'),
-      prefix: '/',
-      decorateReply: false,
-    });
-
-    fastify.setNotFoundHandler((request, reply) => {
-      reply.sendFile('index.html');
-    });
-    
-    // Register Swagger
+    // --- SWAGGER ---
     await fastify.register(swagger, {
       openapi: {
         info: {
           title: 'Music Tracks API',
           description: 'API for managing music tracks',
           version: '1.0.0',
-        }
-      }
+        },
+      },
     });
-    
-    // Register Swagger UI
+
     await fastify.register(swaggerUi, {
       routePrefix: '/documentation',
-      uiConfig: {
-        docExpansion: 'list',
-        deepLinking: true
-      }
+      uiConfig: { docExpansion: 'list', deepLinking: true },
     });
-    
-    // Register routes
+
+    // --- API РОУТИ ---
     await fastify.register(routes);
-    
-    // Start server
-    await fastify.listen({ 
-      port: config.server.port, 
-      host: config.server.host 
+
+    // --- СТАТИКА FRONTEND (frontend/dist) ---
+    // __dirname тут вказує на test-case/dist після компіляції TS.
+    // Тому фронт шукаємо: ../../frontend/dist відносно цього файлу.
+    const frontendDist = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+
+    await fastify.register(fastifyStatic, {
+      root: frontendDist,
+      prefix: '/', // віддавати index.html, assets, і т.д.
+      decorateReply: false,
     });
-    
-    console.log(`Server is running on http://${config.server.host}:${config.server.port}`);
-    console.log(`Swagger documentation available on http://${config.server.host}:${config.server.port}/documentation`);
+
+    // --- HEALTHCHECK ---
+    fastify.get('/health', async () => ({ ok: true }));
+
+    // --- SPA FALLBACK ---
+    fastify.setNotFoundHandler((request, reply) => {
+      reply.sendFile('index.html');
+    });
+
+    // --- СТАРТ СЕРВЕРА ---
+    const port = Number(process.env.PORT || config.server.port || 8000);
+    const host = process.env.HOST || config.server.host || '0.0.0.0';
+
+    await fastify.listen({ port, host });
+
+    console.log(`Server is running on http://${host}:${port}`);
+    console.log(`Swagger docs  → http://${host}:${port}/documentation`);
+    console.log(`Health check  → http://${host}:${port}/health`);
   } catch (error) {
     console.error('Error starting server:', error);
     process.exit(1);

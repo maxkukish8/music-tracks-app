@@ -1,0 +1,29 @@
+# IDE/OS
+.idea/
+.vscode/
+.DS_Store
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+frontend/dist/
+
+# Logs
+npm-debug.log*
+*.log
+
+.env
+.env.*.local
+frontend/.env*
+test-case/.env*
+
+coverage/
+
+test-case/.data/
+test-case/data/
+test-case/uploads/
+
+!test-case/data-initial/
+!test-case/data-initial/**

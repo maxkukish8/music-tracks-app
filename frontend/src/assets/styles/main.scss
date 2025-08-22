@@ -1,0 +1,103 @@
+@use 'variables.scss' as *;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: $bg-body;
+  color: $text-color;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+#root, #__next {
+  isolation: isolate;
+}
+
+.cancel-button-modal {
+  cursor: pointer;
+  top: 25px;
+  right: 24px;
+  position: absolute;
+  background: none;
+  border: none;
+  transition: all .5s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:before, &:after {
+    content: "";
+    height: 15px;
+    width: 15px;
+    border-top: 1px solid #fdfcfe;
+    position: absolute;
+    top: 0;
+    right: -4px;
+    transform: rotate(-45deg);
+  }
+
+  &:before {
+    right: 6px;
+    transform: rotate(45deg);
+  }
+}
+
+.input-global {
+  outline: transparent solid 2px;
+  background: #29282d;
+  border-color: transparent;
+  color: #fdfcfe;
+  padding: 7px;
+  border-radius: 5px;
+  transition: all 0.5s ease;
+
+  &:hover {
+    background-color: #3a393e;
+  }
+
+  &:focus {
+    outline: #a039fa solid 2px;
+    background-color: #3a393e;
+  }
+}
+
+.success-message {
+  margin: 30px 0;
+  color: green;
+  position: absolute;
+  top: 0;
+}

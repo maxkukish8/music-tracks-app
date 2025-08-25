@@ -80,7 +80,7 @@ async function start() {
     });
 
     // --- HEALTHCHECK ---
-    fastify.get('/health', async () => ({ ok: true }));
+    //fastify.get('/health', async () => ({ ok: true }));
 
     // --- SPA FALLBACK ---
     fastify.setNotFoundHandler((request, reply) => {

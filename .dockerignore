@@ -1,0 +1,8 @@
+.git
+node_modules
+frontend/node_modules
+test-case/node_modules
+dist
+frontend/dist
+test-case/dist
+.DS_Store

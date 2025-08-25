@@ -7,8 +7,6 @@
     "start": "node dist/index.js",
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
     "build": "tsc",
-    "build:frontend": "cd ../frontend && npm ci && npm run build",
-    "postinstall": "npm run build:frontend && npm run build",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run src/__tests__/health.test.ts",
